@@ -30,6 +30,15 @@ def get_title_and_author(soup):
     title, author = map(str.strip, tag.text.split("::"))
     return title, author
 
+
+def get_comments(soup):
+    tags = soup.find_all('div', class_='texts')
+    for tag in tags:
+        print(tag.find('span', class_="black").text)
+
+    return
+
+
 def get_image(base_url, soup):
     tag = soup.find('div', class_='bookimage')
     if tag:
@@ -113,4 +122,9 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    # main()
+
+
+    url_book_1 = "https://tululu.org/b9/"
+
+    get_comments(get_soup(url_book_1))
