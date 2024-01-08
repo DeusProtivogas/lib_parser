@@ -33,11 +33,13 @@ def get_title_and_author(soup):
 
 def get_comments(soup):
     tags = soup.find_all('div', class_='texts')
-    for tag in tags:
-        print(tag.find('span', class_="black").text)
+    # for tag in tags:
+    #     print(tag.find('span', class_="black").text)
+    return [tag.find('span', class_="black").text for tag in tags]
 
-    return
-
+def get_genre(soup):
+    tags = soup.find('span', class_='d_book').find_all('a')
+    return [tag.text for tag in tags]
 
 def get_image(base_url, soup):
     tag = soup.find('div', class_='bookimage')
@@ -127,4 +129,5 @@ if __name__ == "__main__":
 
     url_book_1 = "https://tululu.org/b9/"
 
-    get_comments(get_soup(url_book_1))
+    a = get_genre(get_soup(url_book_1))
+    print(a)
