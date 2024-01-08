@@ -41,7 +41,7 @@ def get_genre(soup):
     tags = soup.find('span', class_='d_book').find_all('a')
     return [tag.text for tag in tags]
 
-def get_image(base_url, soup):
+def get_image(soup, base_url="https://tululu.org/"):
     tag = soup.find('div', class_='bookimage')
     if tag:
         print(urljoin(base_url, tag.find("img")['src']))
@@ -95,7 +95,15 @@ def download_image(url, filename, folder='covers/'):
     return path
 
 
-
+def parse_book_page(soup):
+    title, author = get_title_and_author(soup)
+    return {
+        "title": title,
+        "author": author,
+        "comments": get_comments(soup),
+        "genre": get_genre(soup),
+        "image": get_image(soup),
+    }
 
 def main():
 #     Path("./books/").mkdir(parents=True, exist_ok=True)
@@ -129,5 +137,5 @@ if __name__ == "__main__":
 
     url_book_1 = "https://tululu.org/b9/"
 
-    a = get_genre(get_soup(url_book_1))
+    a = parse_book_page(get_soup(url_book_1))
     print(a)
