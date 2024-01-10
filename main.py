@@ -94,9 +94,9 @@ def parse_book_page(soup):
 
 
 def main():
-    parser = argparse.ArgumentParser()
-    parser.add_argument('--start_id', help='Начальный индекс')
-    parser.add_argument('--end_id', help='Конечный индекс')
+    parser = argparse.ArgumentParser(description="Скачать книги и обложки")
+    parser.add_argument('--start_id', help='Начальный индекс (по умолчанию = 1)', default=1)
+    parser.add_argument('--end_id', help='Конечный индекс (по умолчанию = 10)', default=10)
     args = parser.parse_args()
 
     url_txt_template = "https://tululu.org/txt.php?id="
