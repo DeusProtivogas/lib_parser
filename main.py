@@ -111,8 +111,8 @@ def main():
             soup = get_soup(url,)
             book = parse_book_page(soup, url)
 
-            title, author = book["title"], book["author"] # get_title_and_author(soup)
-            image = book["image"] # get_image(soup, url)
+            title, author = book["title"], book["author"]
+            image = book["image"]
             download_txt(url_txt_template, title, params)
             download_image(image, book_id,)
             book_id += 1
