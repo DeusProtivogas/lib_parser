@@ -111,14 +111,6 @@ def main():
             soup = get_soup(url,)
             book = parse_book_page(soup, url)
 
-            # {
-            #     "title": title,
-            #     "author": author,
-            #     "comments": get_comments(soup),
-            #     "genres": get_genres(soup),
-            #     "image": get_image(soup, url),
-            # }
-
             title, author = book["title"], book["author"] # get_title_and_author(soup)
             image = book["image"] # get_image(soup, url)
             download_txt(url_txt_template, title, params)
