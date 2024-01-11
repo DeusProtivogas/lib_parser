@@ -71,8 +71,7 @@ def download_image(url, filename, folder='covers/'):
     return path
 
 
-def parse_book_page(url):
-    soup = get_soup(url)
+def parse_book_page(soup, url):
     title, author = get_title_and_author(soup)
     return {
         "title": title,
@@ -110,8 +109,18 @@ def main():
             }
             url = f"{url_template}{book_id}/"
             soup = get_soup(url,)
-            title, author = get_title_and_author(soup)
-            image = get_image(soup, url)
+            book = parse_book_page(soup, url)
+
+            # {
+            #     "title": title,
+            #     "author": author,
+            #     "comments": get_comments(soup),
+            #     "genres": get_genres(soup),
+            #     "image": get_image(soup, url),
+            # }
+
+            title, author = book["title"], book["author"] # get_title_and_author(soup)
+            image = book["image"] # get_image(soup, url)
             download_txt(url_txt_template, title, params)
             download_image(image, book_id,)
             book_id += 1
