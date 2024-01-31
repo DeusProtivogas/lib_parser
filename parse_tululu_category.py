@@ -90,12 +90,12 @@ def main():
     parser.add_argument(
         '--skip_imgs',
         help='Не скачивать картинки (по умолчанию = False)',
-        default=False
+        default='store_false'
     )
     parser.add_argument(
         '--skip_txt',
         help='Не скачивать текста (по умолчанию = False)',
-        default=False
+        default='store_false'
     )
     parser.add_argument(
         '--dest_folder',
@@ -105,11 +105,13 @@ def main():
     parser.add_argument(
         '--start_page',
         help='Начальная страница (по умолчанию = 1)',
+        type=int,
         default=1
     )
     parser.add_argument(
         '--end_page',
         help='Конечная страница (по умолчанию - пока не закончатся страницы)',
+        type=int,
         default=sys.maxsize
     )
     args = parser.parse_args()
