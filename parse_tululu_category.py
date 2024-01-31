@@ -116,9 +116,9 @@ def main():
     )
     args = parser.parse_args()
 
-    url_book = "https://tululu.org/b"
-    url_all_books_template = "https://tululu.org/l55/"
-    url_txt_template = "https://tululu.org/txt.php"
+    book_url = "https://tululu.org/b"
+    all_books_url_template = "https://tululu.org/l55/"
+    txt_url_template = "https://tululu.org/txt.php"
 
     books_short_info = []
     first_reconnection = True
@@ -129,7 +129,7 @@ def main():
     last_page = int(args.end_page)
     for page in range(start_page, last_page + 1):
         try:
-            soup = get_soup(urljoin(url_all_books_template, str(page)))
+            soup = get_soup(urljoin(all_books_url_template, str(page)))
             books = soup.select("table.d_book")
             if not books:
                 print(f"Ran out of pages")
@@ -141,7 +141,7 @@ def main():
                     params = {
                         "id": book_id,
                     }
-                    url = f"{url_book}{book_id}"
+                    url = f"{book_url}{book_id}"
                     soup = get_soup(url,)
                     book = parse_book_page(soup, url)
 
@@ -149,7 +149,7 @@ def main():
                     image = book["image"]
                     book_path = None
                     if not skip_txt:
-                        book_path = download_txt(url_txt_template, title, params, dest_folder)
+                        book_path = download_txt(txt_url_template, title, params, dest_folder)
                     img_path = None
                     if not skip_imgs:
                         img_path = download_image(image, book_id, dest_folder)
