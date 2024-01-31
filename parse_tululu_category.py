@@ -10,10 +10,8 @@ from urllib.parse import urlparse
 from pathlib import Path
 from pathvalidate import sanitize_filename
 
-
-def check_for_redirect(response):
-    if response.history:
-        raise requests.HTTPError
+from parse_tululu_ids import check_for_redirect
+from parse_tululu_ids import parse_book_page
 
 
 def get_soup(url):
@@ -46,17 +44,6 @@ def get_image(soup, base_url):
     tag = soup.select_one(selector)
     if tag:
         return urljoin(base_url, tag.select_one("img")['src'])
-
-
-def parse_book_page(soup, url):
-    title, author = get_title_and_author(soup)
-    return {
-        "title": title,
-        "author": author,
-        "comments": get_comments(soup),
-        "genres": get_genres(soup),
-        "image": get_image(soup, url),
-    }
 
 
 def download_txt(url, filename, params, dest_folder, folder='books/'):
@@ -120,7 +107,7 @@ def main():
     all_books_url_template = "https://tululu.org/l55/"
     txt_url_template = "https://tululu.org/txt.php"
 
-    books_short_info = []
+    information_about_books = []
     first_reconnection = True
     dest_folder = args.dest_folder
     skip_imgs = bool(args.skip_imgs)
@@ -153,7 +140,7 @@ def main():
                     img_path = None
                     if not skip_imgs:
                         img_path = download_image(image, book_id, dest_folder)
-                    books_short_info.append({
+                    information_about_books.append({
                         "title": title,
                         "author": author,
                         "img_src": img_path,
@@ -171,12 +158,19 @@ def main():
                         time.sleep(1)
                         continue
                     time.sleep(3)
+        except (requests.ConnectionError, requests.Timeout):
+            print("Connection has been interrupted, restarting...")
+            if first_reconnection:
+                first_reconnection = False
+                time.sleep(1)
+                continue
+            time.sleep(3)
         except requests.HTTPError:
             print(f"Ran out of pages")
             break
 
-    with open(os.path.join(dest_folder, "books_short_info.json"), "w", encoding='utf8') as my_file:
-        json.dump(books_short_info, my_file, ensure_ascii=False)
+    with open(os.path.join(dest_folder, "information_about_books.json"), "w", encoding='utf8') as my_file:
+        json.dump(information_about_books, my_file, ensure_ascii=False)
 
 
 if __name__ == "__main__":
