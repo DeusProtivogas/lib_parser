@@ -16,6 +16,7 @@ def check_for_redirect(response):
 
 def get_soup(url):
     response = requests.get(url)
+    print(response.history)
     response.raise_for_status()
     check_for_redirect(response)
 
@@ -95,7 +96,6 @@ def main():
         default=10
     )
     args = parser.parse_args()
-
     url_txt_template = "https://tululu.org/txt.php"
     url_template = "https://tululu.org/b"
 
