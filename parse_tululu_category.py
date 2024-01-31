@@ -169,8 +169,8 @@ def main():
             print(f"Ran out of pages")
             break
 
-    with open(os.path.join(dest_folder, "information_about_books.json"), "w", encoding='utf8') as my_file:
-        json.dump(information_about_books, my_file, ensure_ascii=False)
+    with open(os.path.join(dest_folder, "information_about_books.json"), "w", encoding='utf8') as file:
+        json.dump(information_about_books, file, ensure_ascii=False)
 
 
 if __name__ == "__main__":
