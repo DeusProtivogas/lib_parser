@@ -77,16 +77,16 @@ def main():
     parser.add_argument(
         '--skip_imgs',
         help='Не скачивать картинки (по умолчанию = False)',
-        default='store_false'
+        action='store_true'
     )
     parser.add_argument(
         '--skip_txt',
         help='Не скачивать текста (по умолчанию = False)',
-        default='store_false'
+        action='store_true'
     )
     parser.add_argument(
         '--dest_folder',
-        help='Путь к каталогу с результатами (по умолчанию = 1)',
+        help='Путь к каталогу с результатами',
         default="./"
     )
     parser.add_argument(
@@ -112,8 +112,10 @@ def main():
     dest_folder = args.dest_folder
     skip_imgs = bool(args.skip_imgs)
     skip_txt = bool(args.skip_txt)
-    start_page = int(args.start_page)
-    last_page = int(args.end_page)
+    print(skip_txt)
+    print(skip_imgs)
+    start_page = args.start_page
+    last_page = args.end_page
     for page in range(start_page, last_page + 1):
         try:
             soup = get_soup(urljoin(all_books_url_template, str(page)))
@@ -169,8 +171,8 @@ def main():
             print(f"Ran out of pages")
             break
 
-    with open(os.path.join(dest_folder, "information_about_books.json"), "w", encoding='utf8') as file:
-        json.dump(information_about_books, file, ensure_ascii=False)
+    with open(os.path.join(dest_folder, "information_about_books.json"), "w+", encoding='utf8') as f:
+        json.dump(information_about_books, f, ensure_ascii=False)
 
 
 if __name__ == "__main__":
