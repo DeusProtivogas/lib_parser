@@ -16,57 +16,57 @@ def check_for_redirect(response):
 
 def get_soup(url):
     response = requests.get(url)
-    print(response.history)
     response.raise_for_status()
-    check_for_redirect(response)
 
     soup = BeautifulSoup(response.text, 'lxml')
     return soup
 
 
 def get_title_and_author(soup):
-    tag = soup.find('body').find('h1')
+    selector = "body h1"
+    tag = soup.select_one(selector)
     title, author = map(str.strip, tag.text.split("::"))
     return title, author
 
 
 def get_comments(soup):
-    tags = soup.find_all('div', class_='texts')
-    return [tag.find('span', class_="black").text for tag in tags]
+    selector = "div.texts span.black"
+    return [tag.text for tag in soup.select(selector)]
 
 
 def get_genres(soup):
-    tags = soup.find('span', class_='d_book').find_all('a')
-    return [tag.text for tag in tags]
+    selector = "span.d_book a"
+    return [tag.text for tag in soup.select(selector)]
 
 
 def get_image(soup, base_url):
-    tag = soup.find('div', class_='bookimage')
+    selector = "div.bookimage"
+    tag = soup.select_one(selector)
     if tag:
-        return urljoin(base_url, tag.find("img")['src'])
+        return urljoin(base_url, tag.select_one("img")['src'])
 
 
-def download_txt(url, filename, params, folder='books/'):
+def download_txt(url, filename, params, dest_folder, folder='books/'):
     response = requests.get(url, params)
     response.raise_for_status()
     check_for_redirect(response)
 
-    Path(f"./{folder}").mkdir(parents=True, exist_ok=True)
+    Path(f"{dest_folder}/{folder}").mkdir(parents=True, exist_ok=True)
     name = f'{params["id"]}. {sanitize_filename(filename)}.txt'
-    path = os.path.join(folder, name)
+    path = os.path.join(dest_folder, folder, name)
     with open(path, 'wb') as file:
         file.write(response.content)
     return path
 
 
-def download_image(url, filename, folder='covers/'):
+def download_image(url, filename, dest_folder, folder='covers/'):
     response = requests.get(url)
     response.raise_for_status()
     check_for_redirect(response)
 
-    Path(f"./{folder}").mkdir(parents=True, exist_ok=True)
+    Path(f"{dest_folder}/{folder}").mkdir(parents=True, exist_ok=True)
     name = f'{filename}.{urlparse(url).path.split(".")[-1]}'
-    path = os.path.join(folder, name)
+    path = os.path.join(dest_folder, folder, name)
     with open(path, 'wb') as file:
         file.write(response.content)
     return path
