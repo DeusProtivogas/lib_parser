@@ -12,67 +12,42 @@ from pathvalidate import sanitize_filename
 
 from parse_tululu_ids import check_for_redirect
 from parse_tululu_ids import parse_book_page
+from parse_tululu_ids import get_soup
+from parse_tululu_ids import download_txt
+from parse_tululu_ids import download_image
+from parse_tululu_ids import get_comments
+from parse_tululu_ids import get_genres
+from parse_tululu_ids import get_image
+from parse_tululu_ids import get_title_and_author
 
 
-def get_soup(url):
-    response = requests.get(url)
-    response.raise_for_status()
+def get_book(book, book_url, txt_url_template, dest_folder, skip_txt, skip_imgs):
+    book_id = book.select_one('a')['href'].strip('/').strip('b')
+    params = {
+        "id": book_id,
+    }
+    url = f"{book_url}{book_id}"
+    soup = get_soup(url, )
+    book = parse_book_page(soup, url)
 
-    soup = BeautifulSoup(response.text, 'lxml')
-    return soup
+    title, author = book["title"], book["author"]
+    image = book["image"]
+    book_path = None
+    if not skip_txt:
+        book_path = download_txt(txt_url_template, title, params, dest_folder)
+    img_path = None
+    if not skip_imgs:
+        img_path = download_image(image, book_id, dest_folder)
+    return {
+        "title": title,
+        "author": author,
+        "img_src": img_path,
+        "book_path": book_path,
+        "comments": book["comments"],
+        "genres": book["genres"],
+    }
 
-
-def get_title_and_author(soup):
-    selector = "body h1"
-    tag = soup.select_one(selector)
-    title, author = map(str.strip, tag.text.split("::"))
-    return title, author
-
-
-def get_comments(soup):
-    selector = "div.texts span.black"
-    return [tag.text for tag in soup.select(selector)]
-
-
-def get_genres(soup):
-    selector = "span.d_book a"
-    return [tag.text for tag in soup.select(selector)]
-
-
-def get_image(soup, base_url):
-    selector = "div.bookimage"
-    tag = soup.select_one(selector)
-    if tag:
-        return urljoin(base_url, tag.select_one("img")['src'])
-
-
-def download_txt(url, filename, params, dest_folder, folder='books/'):
-    response = requests.get(url, params)
-    response.raise_for_status()
-    check_for_redirect(response)
-
-    Path(f"{dest_folder}/{folder}").mkdir(parents=True, exist_ok=True)
-    name = f'{params["id"]}. {sanitize_filename(filename)}.txt'
-    path = os.path.join(dest_folder, folder, name)
-    with open(path, 'wb') as file:
-        file.write(response.content)
-    return path
-
-
-def download_image(url, filename, dest_folder, folder='covers/'):
-    response = requests.get(url)
-    response.raise_for_status()
-    check_for_redirect(response)
-
-    Path(f"{dest_folder}/{folder}").mkdir(parents=True, exist_ok=True)
-    name = f'{filename}.{urlparse(url).path.split(".")[-1]}'
-    path = os.path.join(dest_folder, folder, name)
-    with open(path, 'wb') as file:
-        file.write(response.content)
-    return path
-
-
-def main():
+def prepare_parser():
     parser = argparse.ArgumentParser(description="Скачать книги и обложки")
     parser.add_argument(
         '--skip_imgs',
@@ -101,57 +76,45 @@ def main():
         type=int,
         default=sys.maxsize
     )
-    args = parser.parse_args()
+    return parser
+
+
+def main():
+    args = prepare_parser().parse_args()
 
     book_url = "https://tululu.org/b"
     all_books_url_template = "https://tululu.org/l55/"
     txt_url_template = "https://tululu.org/txt.php"
 
-    information_about_books = []
+    books = []
     first_reconnection = True
     dest_folder = args.dest_folder
-    skip_imgs = bool(args.skip_imgs)
-    skip_txt = bool(args.skip_txt)
-    print(skip_txt)
-    print(skip_imgs)
+    skip_imgs = args.skip_imgs
+    skip_txt = args.skip_txt
     start_page = args.start_page
     last_page = args.end_page
     for page in range(start_page, last_page + 1):
         try:
             soup = get_soup(urljoin(all_books_url_template, str(page)))
-            books = soup.select("table.d_book")
-            if not books:
+            books_on_page = soup.select("table.d_book")
+            if not books_on_page:
                 print(f"Ran out of pages")
                 break
 
-            for count, book in enumerate(books):
+            for count, book in enumerate(books_on_page):
                 try:
-                    book_id = book.select_one('a')['href'].strip('/').strip('b')
-                    params = {
-                        "id": book_id,
-                    }
-                    url = f"{book_url}{book_id}"
-                    soup = get_soup(url,)
-                    book = parse_book_page(soup, url)
-
-                    title, author = book["title"], book["author"]
-                    image = book["image"]
-                    book_path = None
-                    if not skip_txt:
-                        book_path = download_txt(txt_url_template, title, params, dest_folder)
-                    img_path = None
-                    if not skip_imgs:
-                        img_path = download_image(image, book_id, dest_folder)
-                    information_about_books.append({
-                        "title": title,
-                        "author": author,
-                        "img_src": img_path,
-                        "book_path": book_path,
-                        "comments": get_comments(soup),
-                        "genres": get_genres(soup),
-                    })
+                    books.append(
+                        get_book(
+                            book,
+                            book_url,
+                            txt_url_template,
+                            dest_folder,
+                            skip_txt,
+                            skip_imgs
+                        )
+                    )
                 except requests.HTTPError:
-                    print(f"Book with id {book_id} not found")
+                    print(f"Book {book.select_one('a')['href'].strip('/').strip('b')} not found")
 
                 except (requests.ConnectionError, requests.Timeout):
                     print("Connection has been interrupted, restarting...")
@@ -171,8 +134,8 @@ def main():
             print(f"Ran out of pages")
             break
 
-    with open(os.path.join(dest_folder, "information_about_books.json"), "w+", encoding='utf8') as f:
-        json.dump(information_about_books, f, ensure_ascii=False)
+    with open(os.path.join(dest_folder, "books.json"), "w+", encoding='utf8') as f:
+        json.dump(books, f, ensure_ascii=False)
 
 
 if __name__ == "__main__":
