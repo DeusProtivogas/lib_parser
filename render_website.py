@@ -3,6 +3,8 @@ import json
 
 from http.server import HTTPServer, SimpleHTTPRequestHandler
 from livereload import Server, shell
+from more_itertools import chunked
+
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 
 def on_reload():
@@ -15,6 +17,9 @@ def on_reload():
 
     for book in books:
         replace_slash(book)
+
+    books = list(chunked(books, 2))
+    # print(books)
 
     template = env.get_template('index_template.html')
     rendered_page = template.render(
