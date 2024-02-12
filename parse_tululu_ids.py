@@ -46,12 +46,13 @@ def get_image(soup, base_url):
         return urljoin(base_url, tag.select_one("img")['src'])
 
 
-def download_txt(url, filename, params, dest_folder, folder='books/'):
+def download_txt(url, filename, params, dest_folder, folder='books'):
     response = requests.get(url, params)
     response.raise_for_status()
     check_for_redirect(response)
 
-    Path(f"{dest_folder}/{folder}").mkdir(parents=True, exist_ok=True)
+    Path(os.path.join(dest_folder, folder)).mkdir(parents=True, exist_ok=True)
+    # Path(f"{dest_folder}/{folder}").mkdir(parents=True, exist_ok=True)
     name = f'{params["id"]}. {sanitize_filename(filename)}.txt'
     path = os.path.join(dest_folder, folder, name)
     with open(path, 'wb') as file:
@@ -59,12 +60,13 @@ def download_txt(url, filename, params, dest_folder, folder='books/'):
     return path
 
 
-def download_image(url, filename, dest_folder, folder='covers/'):
+def download_image(url, filename, dest_folder, folder='covers'):
     response = requests.get(url)
     response.raise_for_status()
     check_for_redirect(response)
 
-    Path(f"{dest_folder}/{folder}").mkdir(parents=True, exist_ok=True)
+    Path(os.path.join(dest_folder, folder)).mkdir(parents=True, exist_ok=True)
+    # Path(f"{dest_folder}/{folder}").mkdir(parents=True, exist_ok=True)
     name = f'{filename}.{urlparse(url).path.split(".")[-1]}'
     path = os.path.join(dest_folder, folder, name)
     with open(path, 'wb') as file:
