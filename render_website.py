@@ -27,14 +27,17 @@ def on_reload():
     # print(books)
 
     template = env.get_template('index_template.html')
+    pages_number = range(1, len(books) + 1)
 
     for counter, books_portion in enumerate(books):
         rendered_page = template.render(
             books=books_portion,
+            pages=pages_number,
+            current_page=counter + 1,
         )
 
         Path(os.path.join("pages")).mkdir(parents=True, exist_ok=True)
-        with open(os.path.join("pages", f'index{counter}.html'), 'w', encoding="utf8") as file:
+        with open(os.path.join("pages", f'index{counter + 1}.html'), 'w', encoding="utf8") as file:
             file.write(rendered_page)
 
 

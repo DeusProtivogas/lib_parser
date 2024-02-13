@@ -12,6 +12,43 @@
   </head>
   <body>
 
+    <nav aria-label="Page navigation" style="padding-left: 200px;">
+      <ul class="pagination">
+        {% if current_page == 1 %}
+          <li class="page-item disabled">
+            <a class="page-link" href="index{{ current_page - 1 }}.html" tabindex="-1" aria-disabled="true">Предыдущая</a>
+          </li>
+        {% else %}
+          <li class="page-item">
+            <a class="page-link" href="index{{ current_page - 1 }}.html">Предыдущая</a>
+          </li>
+        {% endif %}
+
+        {% for page in pages %}
+          {% if page == current_page %}
+            <li class="page-item active" aria-current="page">
+              <span class="page-link">
+                <a class="page-link" href="index{{ page }}.html">{{ page }}</a>
+                <span class="sr-only">(current)</span>
+              </span>
+            </li>
+          {% else %}
+            <li class="page-item">
+              <a class="page-link" href="index{{ page }}.html">{{ page }}</a>
+            </li>
+          {% endif %}
+        {% endfor %}
+
+        {% if current_page == pages|length %}
+          <li class="page-item disabled">
+            <a class="page-link" href="index{{ current_page - 1 }}.html" tabindex="-1" aria-disabled="true">Следующая</a>
+          </li>
+        {% else %}
+          <li class="page-item"><a class="page-link" href="index{{ current_page + 1 }}.html">Следующая</a></li>
+        {% endif %}
+      </ul>
+    </nav>
+
     <div class="container">
       {% for book_pair in books %}
         <div class="row">
