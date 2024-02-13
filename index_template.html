@@ -12,7 +12,7 @@
   </head>
   <body>
 
-    <nav aria-label="Page navigation" style="padding-left: 200px;">
+    <nav aria-label="Page navigation" style="padding: 10px; padding-left: 550px;">
       <ul class="pagination">
         {% if current_page == 1 %}
           <li class="page-item disabled">
@@ -64,7 +64,10 @@
                     <h5 class="card-title">{{ book.title }}</h5>
                     <p class="card-text">{{ book.author }}</p>
                     <p class="card-text">
-                      <a href="{{ book.book_path }}" target="_blank" rel="noopener noreferrer">Читать</a>
+                      <a href="{{ book.book_path }}" target="_blank" rel="noopener noreferrer">Читать</a><hr>
+                      {% for genre in book.genres %}
+                        <span class="badge badge-light">{{ genre }}</span>
+                      {% endfor %}
                     </p>
                   </div>
                 </div>
