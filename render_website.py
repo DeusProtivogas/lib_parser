@@ -39,8 +39,8 @@ def on_reload():
 
 
 def replace_slash(book):
-    book["img_src"] = book["img_src"].replace("\\", "/")
-    book["book_path"] = book["book_path"].replace("\\", "/")
+    book["img_src"] = os.path.join("..", book["img_src"]).replace("\\", "/")
+    book["book_path"] = os.path.join("..", book["book_path"]).replace("\\", "/")
 
 
 def main():
