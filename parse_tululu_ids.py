@@ -52,7 +52,6 @@ def download_txt(url, filename, params, dest_folder, folder='books'):
     check_for_redirect(response)
 
     Path(os.path.join(dest_folder, folder)).mkdir(parents=True, exist_ok=True)
-    # Path(f"{dest_folder}/{folder}").mkdir(parents=True, exist_ok=True)
     name = f'{params["id"]}. {sanitize_filename(filename)}.txt'
     path = os.path.join(dest_folder, folder, name)
     with open(path, 'wb') as file:
@@ -66,7 +65,6 @@ def download_image(url, filename, dest_folder, folder='covers'):
     check_for_redirect(response)
 
     Path(os.path.join(dest_folder, folder)).mkdir(parents=True, exist_ok=True)
-    # Path(f"{dest_folder}/{folder}").mkdir(parents=True, exist_ok=True)
     name = f'{filename}.{urlparse(url).path.split(".")[-1]}'
     path = os.path.join(dest_folder, folder, name)
     with open(path, 'wb') as file:
