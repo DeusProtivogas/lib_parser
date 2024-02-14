@@ -1,5 +1,6 @@
 import os
 import json
+import argparse
 
 from http.server import HTTPServer, SimpleHTTPRequestHandler
 from livereload import Server, shell
@@ -8,36 +9,50 @@ from pathlib import Path
 
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 
+
+def prepare_parser():
+    parser = argparse.ArgumentParser(description="Запустить библиотеку")
+    parser.add_argument(
+        "--dest_folder",
+        help="Путь к каталогу с библиотекой",
+        default="temp_folder"
+    )
+    return parser
+
 def on_reload():
     env = Environment(
-        loader=FileSystemLoader('.'),
-        autoescape=select_autoescape(['html', 'xml'])
+        loader=FileSystemLoader("."),
+        autoescape=select_autoescape(["html", "xml"])
     )
-    dest_folder = "temp_folder"
-    with open(os.path.join(dest_folder, "books.json"), "r", encoding='utf8') as file:
-        # print(file)
-        books_json = file.read()
 
-    books = json.loads(books_json)
+
+    args = prepare_parser().parse_args()
+    dest_folder = args.dest_folder
+    with open(os.path.join(dest_folder, "books.json"), "r", encoding="utf8") as file:
+        books = json.loads(file.read())
+
+    # books = json.loads(books_json)
 
     for book in books:
         replace_slash(book)
 
-    books = list( chunked(list(chunked(books, 2)), 10 ) )
+    books_on_page = 10
+    books_in_row = 2
+    books = list( chunked(list(chunked(books, books_in_row)), books_on_page ) )
     # print(books)
 
-    template = env.get_template('index_template.html')
+    template = env.get_template("index_template.html")
     pages_number = range(1, len(books) + 1)
 
-    for counter, books_portion in enumerate(books):
+    for counter, books_portion in enumerate(books, 1):
         rendered_page = template.render(
             books=books_portion,
             pages=pages_number,
-            current_page=counter + 1,
+            current_page=counter,
         )
 
         Path(os.path.join("pages")).mkdir(parents=True, exist_ok=True)
-        with open(os.path.join("pages", f'index{counter + 1}.html'), 'w', encoding="utf8") as file:
+        with open(os.path.join("pages", f"index{counter}.html"), "w", encoding="utf8") as file:
             file.write(rendered_page)
 
 
@@ -51,8 +66,8 @@ def main():
     on_reload()
 
     server = Server()
-    server.watch('index_template.html', on_reload)
-    server.serve(root='.')
+    server.watch("index_template.html", on_reload)
+    server.serve(root=".")
 
 
 if __name__ == "__main__":

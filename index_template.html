@@ -17,7 +17,7 @@
       <ul class="pagination">
         {% if current_page == 1 %}
           <li class="page-item disabled">
-            <a class="page-link" href="index{{ current_page - 1 }}.html" tabindex="-1" aria-disabled="true">Предыдущая</a>
+            <a class="page-link" tabindex="-1" aria-disabled="true">Предыдущая</a>
           </li>
         {% else %}
           <li class="page-item">
@@ -42,7 +42,7 @@
 
         {% if current_page == pages|length %}
           <li class="page-item disabled">
-            <a class="page-link" href="index{{ current_page - 1 }}.html" tabindex="-1" aria-disabled="true">Следующая</a>
+            <a class="page-link" tabindex="-1" aria-disabled="true">Следующая</a>
           </li>
         {% else %}
           <li class="page-item"><a class="page-link" href="index{{ current_page + 1 }}.html">Следующая</a></li>
@@ -58,19 +58,19 @@
             <div class="card mb-3" style="max-width: 540px;">
               <div class="row no-gutters">
                 <div class="col-md-4">
-                  <img src="{{ book.img_src }}" class="card-img" alt="Изображение отсутствует">
+                  <img src="{{ book.img_src|urlencode }}" class="card-img" alt="Изображение отсутствует">
                 </div>
                 <div class="col-md-8">
                   <div class="card-body">
                     <h5 class="card-title">{{ book.title }}</h5>
                     <p class="card-text">{{ book.author }}</p>
-                    <p class="card-text">
-                      <a href="{{ book.book_path }}" target="_blank" rel="noopener noreferrer">Читать</a>
+<!--                    <p class="card-text">-->
+                      <a href="{{ book.book_path|urlencode }}" target="_blank" rel="noopener noreferrer">Читать</a>
                       <hr>
                       {% for genre in book.genres %}
-                        <span class="badge badge-light">{{ genre }}</span>
+                        <a><span class="badge badge-light">{{ genre }}</span></a>
                       {% endfor %}
-                    </p>
+<!--                    </p>-->
                   </div>
                 </div>
               </div>
