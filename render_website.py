@@ -14,7 +14,12 @@ def prepare_parser():
     parser.add_argument(
         "--dest_folder",
         help="Путь к каталогу с библиотекой",
-        default="temp_folder"
+        default="library"
+    )
+    parser.add_argument(
+        "--library_file",
+        help="Путь к файлу с информацией о книгах",
+        default="books.json"
     )
     return parser
 
@@ -27,10 +32,12 @@ def on_reload():
 
     args = prepare_parser().parse_args()
     dest_folder = args.dest_folder
+    library_file = args.library_file
     with open(
-            os.path.join(dest_folder, "books.json"), "r", encoding="utf8"
+            os.path.join(dest_folder, library_file), "r", encoding="utf8"
     ) as file:
-        books = json.loads(file.read())
+        # books = json.loads(file.read())
+        books = json.load(file)
 
     for book in books:
         replace_slash(book)
@@ -47,6 +54,7 @@ def on_reload():
             books=books_portion,
             pages=pages_number,
             current_page=counter,
+            dest_folder=dest_folder,
         )
 
         Path(os.path.join("pages")).mkdir(parents=True, exist_ok=True)
