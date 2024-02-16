@@ -14,7 +14,7 @@ def prepare_parser():
     parser.add_argument(
         "--dest_folder",
         help="Путь к каталогу с библиотекой",
-        default="library"
+        default="media"
     )
     parser.add_argument(
         "--library_file",
