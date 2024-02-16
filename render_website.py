@@ -32,11 +32,10 @@ def on_reload():
 
     args = prepare_parser().parse_args()
     dest_folder = args.dest_folder
-    library_file = args.library_file
+    library_file_name = args.library_file
     with open(
-            os.path.join(dest_folder, library_file), "r", encoding="utf8"
+            os.path.join(dest_folder, library_file_name), "r", encoding="utf8"
     ) as file:
-        # books = json.loads(file.read())
         books = json.load(file)
 
     for book in books:
